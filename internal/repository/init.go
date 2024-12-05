@@ -48,3 +48,47 @@ func Init(path string) (*Repository, error) {
 
 	return repo, nil
 }
+
+// ComputeSHA1 generates a SHA-1 hash for given data
+func ComputeSHA1(data []byte) string {
+	h := sha1.New()
+	h.Write(data)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// WriteObject stores a git object (blob, tree, commit) in the repository
+func (r *Repository) WriteObject(content []byte) (string, error) {
+	hash := ComputeSHA1(content)
+	objectPath := filepath.Join(r.GitPath, "objects", hash[:2], hash[2:])
+	
+	// Ensure the subdirectory exists
+	err := os.MkdirAll(filepath.Dir(objectPath), 0755)
+	if err != nil {
+		return "", err
+	}
+
+	return hash, os.WriteFile(objectPath, content, 0644)
+}
+
+// GetRepositoryRoot finds the root of the current git repository
+func GetRepositoryRoot() (string, error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	for {
+		gitDir := filepath.Join(currentDir, ".git")
+		if _, err := os.Stat(gitDir); err == nil {
+			return currentDir, nil
+		}
+
+		// Move to parent directory
+		parentDir := filepath.Dir(currentDir)
+		if parentDir == currentDir {
+			// Reached root without finding .git
+			return "", fmt.Errorf("not a git repository")
+		}
+		currentDir = parentDir
+	}
+}
