@@ -23,3 +23,5 @@ clean:
 deps:
 	$(GOGET) github.com/stretchr/testify/assert
 
+cross-compile:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v ./cmd/gitclone
