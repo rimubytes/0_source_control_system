@@ -19,3 +19,7 @@ clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
 	rm -f $(BINARY_UNIX)
+
+deps:
+	$(GOGET) github.com/stretchr/testify/assert
+
