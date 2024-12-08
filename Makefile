@@ -7,4 +7,11 @@ GOGET=$(GOCMD) get
 BINARY_NAME=gitclone
 BINARY_UNIX=$(BINARY_NAME)_unix
 
+all: test build
+
+build:
+	$(GOBUILD) -o $(BINARY_NAME) -v ./cmd/gitclone
+
+test:
+	$(GOTEST) -v ./...
 
