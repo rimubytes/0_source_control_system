@@ -37,3 +37,32 @@ func (r *Repository) AddToStaging(paths []string) error {
 
 	return r.writeIndex(index)
 }
+
+// readIndex reads the current staging index
+func (r *Repository) readIndex() (*Index, error) {
+	indexPath := filepath.Join(r.GitPath, "index")
+	data, err := os.ReadFile(indexPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var index Index
+	err = json.Unmarshal(data, &index)
+	return &index, err
+}
+
+// writeIndex writes the current staging index
+func (r *Repository) writeIndex(index *Index) error {
+	indexPath := filepath.Join(r.GitPath, "index")
+	data, err := json.Marshal(index)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(indexPath, data, 0644)
+}
+
+// ClearIndex removes the staging index
+func (r *Repository) ClearIndex() error {
+	indexPath := filepath.Join(r.GitPath, "index")
+	return os.Remove(indexPath)
+}
